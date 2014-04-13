@@ -1,0 +1,18 @@
+author: cedeel
+database: false
+description: Lookup player UUIDs from cached names.
+main: com.cedeel.namecacher.Plugin
+name: ${name}
+website: ${url}
+version: ${version}
+commands:
+  uuid: 
+    description: Get the UUID of a player on the server
+    usage: /uuid username
+    permission: namecacher.uuid
+permissions:
+  namecacher.uuid:
+    description: Use the /uuid command
+    default: op
+
+    
