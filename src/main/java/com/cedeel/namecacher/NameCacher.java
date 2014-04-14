@@ -26,17 +26,46 @@
 
 package com.cedeel.namecacher;
 
+import com.cedeel.mojang.api.profiles.HttpProfileRepository;
+import com.cedeel.mojang.api.profiles.Profile;
+import com.cedeel.mojang.api.profiles.ProfileCriteria;
 import com.cedeel.namecacher.storage.StorageBackend;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 
-import java.util.Map;
 import java.util.UUID;
 
 public class NameCacher {
-    private Map<String, UUID> players;
+    private static BiMap<UUID, String> players;
     private StorageBackend storageBackend;
 
     public NameCacher(StorageBackend backend) {
         storageBackend = backend;
-        // TODO: init player map
+        players = HashBiMap.create(storageBackend.getAll());
+    }
+
+    public void addUser(UUID userId, String username) {
+        if (players.put(userId, username) == null)
+            storageBackend.add(userId, username);
+    }
+
+    public static String getName(final UUID id) {
+        return NameCacher.players.get(id);
+    }
+
+    public static UUID getUUID(final String name) {
+        UUID result = NameCacher.players.inverse().get(name);
+        if (result == null) {
+            result = getIdFromMojang(name);
+        }
+        return result;
+    }
+
+    private static UUID getIdFromMojang(final String name) {
+        HttpProfileRepository repo = new HttpProfileRepository();
+        Profile[] result = repo.findProfilesByCriteria(new ProfileCriteria(name, "minecraft"));
+        if (result.length > 0) {
+            return UUID.fromString(result[0].getId());
+        } else return null;
     }
 }

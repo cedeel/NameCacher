@@ -24,18 +24,25 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.cedeel.namecacher.storage;
+package com.cedeel.namecacher.listeners;
 
-import java.util.Map;
-import java.util.UUID;
+import com.cedeel.namecacher.NameCacher;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 
-public interface StorageBackend {
+public class PlayerListener implements Listener {
 
-    public Map<UUID, String> getAll();
+    private NameCacher cacher;
 
-    public void save(Map<UUID, String> players);
+    public PlayerListener(NameCacher cacher) {
+        this.cacher = cacher;
+    }
 
-    public void add(UUID id, String name);
-
-    public void persist();
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        cacher.addUser(player.getUniqueId(), player.getPlayerListName());
+    }
 }

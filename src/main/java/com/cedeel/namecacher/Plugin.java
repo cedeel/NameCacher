@@ -25,13 +25,17 @@
  */
 package com.cedeel.namecacher;
 
+import com.cedeel.namecacher.storage.JSONStorage;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.nio.file.Paths;
 
 public class Plugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
         registerListeners();
+        new NameCacher(new JSONStorage(Paths.get(this.getDataFolder().toURI())));
     }
 
     @Override

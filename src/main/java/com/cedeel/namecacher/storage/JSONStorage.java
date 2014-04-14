@@ -26,27 +26,65 @@
 
 package com.cedeel.namecacher.storage;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.BiMap;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import java.util.UUID;
 
 public class JSONStorage implements StorageBackend {
+    private boolean isFunctional;
+    private Path dataFile;
+    private ObjectMapper objectMapper;
+    private BiMap<UUID, String> players;
+
+    public JSONStorage(Path outputFile) {
+        try {
+            dataFile = Files.createFile(outputFile);
+            isFunctional = true;
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+        objectMapper = new ObjectMapper();
+    }
+
     @Override
-    public Map<String, UUID> getAll() {
+    public Map<UUID, String> getAll() {
+        if (isFunctional)
+            return players;
         return null;
     }
 
     @Override
-    public void save(Map<String, UUID> players) {
+    public void save(Map<UUID, String> players) {
+        if (isFunctional) {
+            players.putAll(players);
+            persist();
+        }
 
     }
 
     @Override
-    public void add(String name, UUID id) {
+    public void add(UUID id, String name) {
+        if (isFunctional) {
+            players.put(id, name);
+        }
 
     }
 
     @Override
     public void persist() {
+        if (isFunctional) {
+            try {
+                objectMapper.writeValue(Files.newOutputStream(dataFile, StandardOpenOption.CREATE), players);
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        }
 
     }
 }
